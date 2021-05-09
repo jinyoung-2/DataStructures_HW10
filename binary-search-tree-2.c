@@ -202,12 +202,6 @@ int deleteNode(Node* head, int key)
 	Node* deleted=head->left;	//삭제할 노드 
 
 
-	Node* ptr=NULL;
-	Node* ptr_parent=NULL;
-	Node* small=NULL;
-	Node* small_parent=NULL;
-
-
 	//Q. 삭제할 노드를 어떻게 찾을 건가?
 	while(deleted!=NULL)
 	{
@@ -226,9 +220,9 @@ int deleteNode(Node* head, int key)
 				}
 				/* 그 이외의 노드가 leaf node일 때*/
 				if(key<parent->key)	
-					parent->left==NULL;
+					parent->left=NULL;
 				else if(key>parent->key)
-					parent->right==NULL;
+					parent->right=NULL;
 				free(deleted);
 				return 0;
 			}
@@ -239,6 +233,11 @@ int deleteNode(Node* head, int key)
 			-> 오른쪽 서브트리에서 가장 작은 값으로 대체되도록 한다. */
 			else if(deleted->left!=NULL&&deleted->right!=NULL)
 			{
+				Node* ptr=NULL;
+				Node* ptr_parent=NULL;
+				Node* small=NULL;
+				Node* small_parent=NULL;
+
 				//ptr 관련 포인터는 작은원소를 찾으러 다님
 				ptr_parent=deleted;
 				ptr=deleted->right;  //right subtree
@@ -260,34 +259,64 @@ int deleteNode(Node* head, int key)
 				}
 				//small 노드형포인터가 가장 작은 값을 가진 노드 가리킴
 
-				//head->left가 제거대상일 때
-				if(head->left==deleted)
+				/* deleted의 오른쪽 노드가 small일 때 */
+				if(deleted->right==small)
 				{
-					small->right=deleted->right;
-					small_parent->left=NULL;
-					head->left=small;
+					if(head->left==deleted)
+					{
+						parent->left=small;
+						small->left=deleted->left;
+						free(deleted);
+						return 0;
+					}
+
+					//그 이외일 때
+					if(key<parent->key)
+					{
+						parent->left=small;
+					}
+					if(key>parent->key)
+					{
+						parent->right=small;
+					}
+					small->left=deleted->left;
 					free(deleted);
 					return 0;
 				}
 
-				//그 이외의 node가 제거대상일 때
-				
-				if(key<parent->key)
+				/* deleted의 오른쪽 노드가 small이 아니라, 다른 노드가 small일 때 */
+				else
 				{
-					small->right=deleted->right;
-					parent->left=small;
+					if(head->left==deleted)
+					{
+						parent->left=small;
+						small->right=deleted->right;
+						small->left=deleted->left;
+						small_parent->left=small->right;
+						free(deleted);
+						return 0;
+					}
+
+					//그 이외의 node가 제거대상일 때
+
+					if(key<parent->key)
+					{
+						small->right=deleted->right;
+						small->left=deleted->left;
+						parent->left=small;
+					}
+					else if(key>parent->key)
+					{
+						parent->right=small;
+						small->right=deleted->right;
+						small->left=deleted->left;
+					}
+					small_parent=small->right;
+					free(deleted);
+					return 0;
 				}
-				else if(key>parent->key)
-				{
-					small->right=deleted->right;
-					parent->right=small;
-				}
-				small_parent->left=NULL;
-				free(deleted);
-				return 0;
 			}
 
-		
 			/* non-leaf node which has one child delete */
 			else
 			{
@@ -387,6 +416,7 @@ void push(Node* aNode)
 		stack[++top]=aNode;		//top을 1증가시킨 위치에 원소를 삽입한다
 }
 
+
 /**
  * textbook: p 224s
  */
@@ -429,6 +459,7 @@ void enQueue(Node* aNode)
 	else
 		return ;
 }
+
 
 /**
  * textbook: p 225
