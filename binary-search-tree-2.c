@@ -201,6 +201,8 @@ int deleteNode(Node* head, int key)
 	Node* parent=head;  //삭제할 노드의 부모노드 
 	Node* deleted=head->left;	//삭제할 노드 
 
+	Node* ptr=NULL;
+	Node* ptr_parent=NULL;
 
 	//Q. 삭제할 노드를 어떻게 찾을 건가?
 	while(deleted!=NULL)
@@ -227,91 +229,98 @@ int deleteNode(Node* head, int key)
 				return 0;
 			}
 	
-	 		
-			//여기 더 생각하기!! case가 너무 많음 
 			/* non-leaf node which has two childs delete 
 			-> 오른쪽 서브트리에서 가장 작은 값으로 대체되도록 한다. */
 			else if(deleted->left!=NULL&&deleted->right!=NULL)
 			{
-				Node* ptr=NULL;
-				Node* ptr_parent=NULL;
-				Node* small=NULL;
-				Node* small_parent=NULL;
-
 				//ptr 관련 포인터는 작은원소를 찾으러 다님
 				ptr_parent=deleted;
-				ptr=deleted->right;  //right subtree
+				ptr=deleted->right;  	//right subtree
 
-				//small 관련 포인터는 작은 원소를 가리킴. 
-				small_parent=ptr_parent;
-				small=ptr; //right subtree
-
-
-				while(ptr!=NULL)
+				while(1)
 				{
-					if((ptr->key)<(small->key))
-					{
-						small_parent=ptr_parent;
-						small=ptr;
-					}
+					if(ptr->left==NULL)
+						break;
 					ptr_parent=ptr;
 					ptr=ptr->left;		//left subtree로 이동(이유: 가장 작은 원소를 찾아야 하므로)
 				}
-				//small 노드형포인터가 가장 작은 값을 가진 노드 가리킴
+				//ptr이 가장 작은 원소를 가리킴 
 
-				/* deleted의 오른쪽 노드가 small일 때 */
-				if(deleted->right==small)
+				/* deleted->right->left==NULL일 때(deleted의 right tree의 가장 작은 원소가 deleted->right일 때) */
+				if(deleted->right==ptr)
 				{
-					if(head->left==deleted)
-					{
-						parent->left=small;
-						small->left=deleted->left;
-						free(deleted);
-						return 0;
-					}
+					// if(head->left==deleted)
+					// {
+					// 	parent->left=ptr;
+					// 	ptr->left=deleted->left;
+					// 	free(deleted);
+					// 	return 0;
+					// }
 
-					//그 이외일 때
-					if(key<parent->key)
-					{
-						parent->left=small;
-					}
+					// //그 이외일 때
+					// if(key<parent->key)
+					// 	parent->left=ptr;
+					// else if(key>parent->key)
+					// 	parent->right=ptr;
+
+					// ptr->left=deleted->left;
+					// free(deleted);
+					// return 0;
+
 					if(key>parent->key)
 					{
-						parent->right=small;
+						parent->right=ptr;
+					}	
+					else
+					{
+						parent->left=ptr;
 					}
-					small->left=deleted->left;
+					ptr->left=deleted->left;
 					free(deleted);
 					return 0;
 				}
 
-				/* deleted의 오른쪽 노드가 small이 아니라, 다른 노드가 small일 때 */
+				/* deleted->right->left!=NULL일 때(deleted의 right tree의 가장 작은 원소가 deleted->right가 아닐때) */
 				else
 				{
-					if(head->left==deleted)
-					{
-						parent->left=small;
-						small->right=deleted->right;
-						small->left=deleted->left;
-						small_parent->left=small->right;
-						free(deleted);
-						return 0;
-					}
+					// if(head->left==deleted)
+					// {
+					// 	ptr_parent->left=ptr->right;
+					// 	parent->left=ptr;
+					// 	ptr->right=deleted->right;
+					// 	ptr->left=deleted->left;
+					// 	free(deleted);
+					// 	return 0;
+					// }
 
-					//그 이외의 node가 제거대상일 때
-
-					if(key<parent->key)
+					// //그 이외의 node가 제거대상일 때
+					// if(key<parent->key)
+					// {
+					// 	ptr_parent->left=ptr->right;
+					// 	parent->left=ptr;
+					// 	ptr->right=deleted->right;
+					// 	ptr->left=deleted->left;
+					// }
+					// else if(key>parent->key)
+					// {
+					// 	ptr_parent->left=ptr->right;
+					// 	parent->right=ptr;
+					// 	ptr->right=deleted->right;
+					// 	ptr->left=deleted->left;
+					// }
+					// free(deleted);
+					// return 0;
+					ptr_parent->left=ptr->right;
+					if(key>parent->key)
 					{
-						small->right=deleted->right;
-						small->left=deleted->left;
-						parent->left=small;
+						parent->right=ptr;
 					}
-					else if(key>parent->key)
+					else
 					{
-						parent->right=small;
-						small->right=deleted->right;
-						small->left=deleted->left;
+						parent->left=ptr;
 					}
-					small_parent=small->right;
+					ptr->right=deleted->right;
+					ptr->left=deleted->left;
 					free(deleted);
 					return 0;
 				}
