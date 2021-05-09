@@ -11,9 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
-
-typedef struct node {
+typedef struct node {	//node 구조체 생성 
 	int key;
 	struct node *left;
 	struct node *right;
@@ -37,7 +35,7 @@ Node* deQueue();
 void enQueue(Node* aNode);
 
 
-int initializeBST(Node** h);
+int initializeBST(Node** h); /* 이진탐색트리 초기화 */
 
 /* functions that you have to implement */
 void recursiveInorder(Node* ptr);	  /* recursive inorder traversal */
@@ -49,10 +47,7 @@ int freeBST(Node* head); /* free all memories allocated to the tree */
 
 /* you may add your own defined functions if necessary */
 
-
-//void printStack();	////////////////////////////////
-
-
+//void printStack();	//Q. 이 함수를 정의해야 하나?
 
 int main()
 {
@@ -97,6 +92,7 @@ int main()
 		case 'r': case 'R':
 			recursiveInorder(head->left);
 			break;
+
 		case 't': case 'T':
 			iterativeInorder(head->left);
 			break;
@@ -119,6 +115,8 @@ int main()
 	return 1;
 }
 
+
+/* Binary Search Tree Initialize */
 int initializeBST(Node** h) {
 
 	/* if the tree is not empty, then remove all allocated nodes from the tree*/
@@ -139,7 +137,7 @@ int initializeBST(Node** h) {
 }
 
 
-
+/* Inorder Traversal -> recursive */
 void recursiveInorder(Node* ptr)
 {
 	if(ptr) {
@@ -150,14 +148,17 @@ void recursiveInorder(Node* ptr)
 }
 
 
+/* node insert in Binary Tree*/
 int insert(Node* head, int key)
 {
-	Node* newNode = (Node*)malloc(sizeof(Node));
+	Node* newNode = (Node*)malloc(sizeof(Node));	//삽입할 노드 동적할당 
+	//삽입할 노드 초기화
 	newNode->key = key;
 	newNode->left = NULL;
 	newNode->right = NULL;
 
-	if (head->left == NULL) {
+	//tree가 존재하지 않을 때
+	if (head->left == NULL) { 
 		head->left = newNode;
 		return 1;
 	}
@@ -194,6 +195,7 @@ int insert(Node* head, int key)
 }
 
 
+/* 노드 삭제 함수 -> 3가지 방식 */
 int deleteNode(Node* head, int key)
 {
 	Node* parent=head;  //삭제할 노드의 부모노드 
@@ -335,57 +337,54 @@ int deleteNode(Node* head, int key)
 }
 
 
+/* postorder traversal에서 파생된 함수 -> recursive방식 이용 */
 void freeNode(Node* ptr)
 {
 	if(ptr) {
 		freeNode(ptr->left);
 		freeNode(ptr->right);
-		free(ptr);
+		free(ptr);	//ptr에 할당된 메모리 해제 
 	}
 }
 
+
+/* BST에 할당된 메모리 전체 해제 */
 int freeBST(Node* head)
 {
-
+	//tree가 존재하지 않을 때 -> head만 메모리 해제시키면 됨
 	if(head->left == head)
 	{
 		free(head);
 		return 1;
 	}
 
+	//tree가 존재할 때 -> tree안의 모든 노드들을 메모리 해제시켜야 함
 	Node* p = head->left;
 
 	freeNode(p);
 
+	//tree안의 모든 노드들이 메모리 해제된 후, head에 할당된 메모리 해제
 	free(head);
 	return 1;
 }
 
-// /* for stack */
-// #define MAX_STACK_SIZE		20
-// Node* stack[MAX_STACK_SIZE];
-// int top = -1;
 
 /* 스택에서 원소 삭제하는 함수 */
 Node* pop()
 {
 	/* stack이 Empty인지 검사 */
-	if(top==-1)	//top=-1일때 스택이 비어있는상태로, 삭제할 원소가 존재하지 않음
-	{
-		printf("ERROR: Stack is Empty\n");
-		return NULL; //NULL리턴
-	}
-	return stack[top--];	//top에 위치한 원소를 반환하고, top의 위치를 -1한다
+	if(top==-1)					//top=-1일때 스택이 비어있는상태로, 삭제할 원소가 존재하지 않음
+		return NULL; 			//NULL리턴
+	else
+		return stack[top--];	//top에 위치한 원소를 반환하고, top의 위치를 -1한다
 }
+
 
 /* 스택에 원소 삽입하는 함수 */
 void push(Node* aNode)
 {
-	/* stack이 FULL인지 검사 */
-	if(top>=MAX_STACK_SIZE-1)	//top>=MAX_STACK_SIZE-1일 때, stack이 가득찬 상태로 삽입할 위치가 존재하지 않음
-		printf("ERROR: Stack is already FULL\n");
-	else
-		stack[++top]=aNode;	//top을 1증가시킨 위치에 원소를 삽입한다
+	if(top<MAX_STACK_SIZE-1)	//top>=MAX_STACK_SIZE-1이면, stack이 가득찬 상태로 원소를 삽입할 수 없음
+		stack[++top]=aNode;		//top을 1증가시킨 위치에 원소를 삽입한다
 }
 
 /**
@@ -396,70 +395,65 @@ void iterativeInorder(Node* node)   //LVR 방식
 {
 	while(1)
 	{
-		for(;node;node=node->left)
+		for(;node;node=node->left)	//node가 NULL이기 전까지, node의 left로 이동하며, 스택에 node삽입
 		{
 			push(node);	//스택에 삽입
 		}
 		node=pop();		//스택에서 삭제 
-		if(!node)  		//공백스택 (pop()==NULL일 때)
+		if(!node)  		//공백스택 (pop()==NULL일 때) -> 반복문 탈출
 			break;
-		printf("  [%d]  ",node->key);	
+		printf(" [%d] ",node->key);	
 		node=node->right;	//right subtree로 이동
 	}
 }
 
 
-//front위치를 dummmy space로 지정하여 cricular queue구현하기 
+/* front위치를 dummmy space로 지정하여 cricular queue구현하기 */
 /* queue에서 원소 삭제하는 함수 */
 Node* deQueue()
 {
 	//queue가 empty일 때(rear과 front 동일) -> 삭제할 원소 없으므로 에러 발생 
 	if(rear==front)
-	{
-		printf("ERROR: Circular Queue is Empty\n");
 		return NULL;	//NULL 반환
-	}
-	return queue[(++front)%MAX_QUEUE_SIZE];	//front를 front+1로 재설정하고, 변경된 front에 위치한 큐의 원소 반환
+	else
+		return queue[(++front)%MAX_QUEUE_SIZE];	//front를 front+1로 재설정하고, 변경된 front에 위치한 큐의 원소 반환
 }
+
 
 /* queue에서 원소 삽입하는 함수 */
 void enQueue(Node* aNode)
 {
-	//queue가 full일 때(rear+1과 front 동일) -> 삽입할 곳이 존재하지 않으므로 에러 발생 
-	if((rear+1)%MAX_QUEUE_SIZE==front)
-		printf("ERROR: Circular Queue is already FULL\n");
-	else
+	//rear+1과 front가 동일하지 않고(queue가 full인 상태x) -> 원소를 queue에 삽입할 수 있음
+	if((rear+1)%MAX_QUEUE_SIZE!=front)	
 		queue[(++rear)%MAX_QUEUE_SIZE]=aNode;	//rear를 rear+1로 재설정하고, 변경된 rear위치에 aNode 삽입
+	else
+		return ;
 }
-
-
-// /* for queue */
-// #define MAX_QUEUE_SIZE		20
-// Node* queue[MAX_QUEUE_SIZE];
-// int front = -1;
-// int rear = -1;
 
 /**
  * textbook: p 225
  */
-
 /* 레벨순서 순회(non-recursive) -> circular queue이용 */
 void levelOrder(Node* ptr)
 {
 	if(!ptr)	//공백 트리 
-		return ;
-	enQueue(ptr);
+	{
+		printf("There is no node in tree\n");
+		return ;		//QQ. 이렇게 return ;으로 표시하면, 이 함수를 반환하긴 하는거야? 이 함수에서 탈출하는거야?
+	}	
+	enQueue(ptr);	//tree의 첫번째 노드 삽입
 	while(1)
 	{
 		ptr=deQueue();
 		if(ptr)
 		{	
-			printf("  [%d]  ",ptr->key);
-			if(ptr->left)
+			printf(" [%d] ",ptr->key);
+			if(ptr->left)				//ptr의 왼쪽노드가 NULL이 아닐때, queue에 원소 삽입
 				enQueue(ptr->left);
-			if(ptr->right)
+			if(ptr->right)				//ptr의 오른쪽노드가 NULL이 아닐때, queue에 원소 삽입
 				enQueue(ptr->right);
 		}
+		//ptr=NULL일 때, 반복문 탈출 
 		else
 			break;
 	}
