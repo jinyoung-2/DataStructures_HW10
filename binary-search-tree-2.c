@@ -209,14 +209,10 @@ int deleteNode(Node* head, int key)
 			if(deleted->left==NULL&&deleted->right==NULL)
 			{
 				/* head->left가 leaf node일 때*/
-				if(head->left==deleted)
-				{
+				if(head->left==deleted)	
 					parent->left=NULL;
-					free(deleted);
-					return 0;
-				}
 				/* 그 이외의 노드가 leaf node일 때*/
-				if(key<parent->key)	
+				else if(key<parent->key)	
 					parent->left=NULL;
 				else if(key>parent->key)
 					parent->right=NULL;
@@ -246,19 +242,12 @@ int deleteNode(Node* head, int key)
 				{
 					/* head->left가 삭제할 노드일 때*/
 					if(head->left==deleted)
-					{
 						parent->left=ptr;
-						ptr->left=deleted->left;
-						free(deleted);
-						return 0;
-					}
-
 					//그 이외의 node가 제거대상일 때
-					if(key<parent->key)
+					else if(key<parent->key)
 						parent->left=ptr;
 					else if(key>parent->key)
 						parent->right=ptr;
-
 					ptr->left=deleted->left;
 					free(deleted);
 					return 0;
@@ -268,31 +257,16 @@ int deleteNode(Node* head, int key)
 				else
 				{
 					/* head->left가 삭제할 노드일 때*/
+					ptr_parent->left=ptr->right;
 					if(head->left==deleted)
-					{
-						ptr_parent->left=ptr->right;
 						parent->left=ptr;
-						ptr->right=deleted->right;
-						ptr->left=deleted->left;
-						free(deleted);
-						return 0;
-					}
-
 					//그 이외의 node가 제거대상일 때
-					if(key<parent->key)
-					{
-						ptr_parent->left=ptr->right;
+					else if(key<parent->key)
 						parent->left=ptr;
-						ptr->right=deleted->right;
-						ptr->left=deleted->left;
-					}
 					else if(key>parent->key)
-					{
-						ptr_parent->left=ptr->right;
 						parent->right=ptr;
-						ptr->right=deleted->right;
-						ptr->left=deleted->left;
-					}
+					ptr->right=deleted->right;
+					ptr->left=deleted->left;
 					free(deleted);
 					return 0;
 
