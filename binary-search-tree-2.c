@@ -224,7 +224,6 @@ int deleteNode(Node* head, int key)
 			-> 오른쪽 서브트리에서 가장 작은 값으로 대체되도록 한다. */
 			else if(deleted->left!=NULL&&deleted->right!=NULL)
 			{
-				//ptr 관련 포인터는 작은원소를 찾으러 다님
 				ptr_parent=deleted;
 				ptr=deleted->right;  	//right subtree
 
@@ -335,7 +334,7 @@ void freeNode(Node* ptr)
 int freeBST(Node* head)
 {
 	//tree가 존재하지 않을 때 -> head만 메모리 해제시키면 됨
-	if(head->left == head)		//////Q. head->left==NULL이라고 해도 돼????? 
+	if(head->left == head)		
 	{
 		free(head);
 		return 1;
