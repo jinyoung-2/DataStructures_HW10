@@ -196,7 +196,7 @@ int deleteNode(Node* head, int key)
 	Node* parent=head;  		//삭제할 노드의 부모노드 
 	Node* deleted=head->left;	//삭제할 노드 
 
-	//삭제노드의 right subtree 원소 중 가장 작은 원소 찾는 포인터 
+	//삭제노드의 right subtree 원소 중 가장 작은 원소 찾는 포인터
 	Node* ptr=NULL;
 	Node* ptr_parent=NULL;
 
@@ -208,15 +208,23 @@ int deleteNode(Node* head, int key)
 			/* leaf node delete*/
 			if(deleted->left==NULL&&deleted->right==NULL)
 			{
-				if(key>parent->key)
-					parent->right=NULL;
-				else
+				/* head->left가 leaf node일 때*/
+				if(head->left==deleted)
+				{
 					parent->left=NULL;
+					free(deleted);
+					return 0;
+				}
+				/* 그 이외의 노드가 leaf node일 때*/
+				if(key<parent->key)	
+					parent->left=NULL;
+				else if(key>parent->key)
+					parent->right=NULL;
 				free(deleted);
 				return 0;
 			}
 	
-			/* non-leaf node which has two childs delete 
+			/* non-leaf node which has two children delete 
 			-> 오른쪽 서브트리에서 가장 작은 값으로 대체되도록 한다. */
 			else if(deleted->left!=NULL&&deleted->right!=NULL)
 			{
@@ -236,10 +244,21 @@ int deleteNode(Node* head, int key)
 				/* deleted->right->left==NULL일 때(deleted의 right tree의 가장 작은 원소가 deleted->right일 때) */
 				if(deleted->right==ptr)
 				{
-					if(key>parent->key)
-						parent->right=ptr;
-					else
+					/* head->left가 삭제할 노드일 때*/
+					if(head->left==deleted)
+					{
 						parent->left=ptr;
+						ptr->left=deleted->left;
+						free(deleted);
+						return 0;
+					}
+
+					//그 이외의 node가 제거대상일 때
+					if(key<parent->key)
+						parent->left=ptr;
+					else if(key>parent->key)
+						parent->right=ptr;
+
 					ptr->left=deleted->left;
 					free(deleted);
 					return 0;
@@ -248,34 +267,66 @@ int deleteNode(Node* head, int key)
 				/* deleted->right->left!=NULL일 때(deleted의 right tree의 가장 작은 원소가 deleted->right가 아닐때) */
 				else
 				{
-					ptr_parent->left=ptr->right;
-					if(key>parent->key)
-						parent->right=ptr;
-					else
+					/* head->left가 삭제할 노드일 때*/
+					if(head->left==deleted)
+					{
+						ptr_parent->left=ptr->right;
 						parent->left=ptr;
-					ptr->right=deleted->right;
-					ptr->left=deleted->left;
+						ptr->right=deleted->right;
+						ptr->left=deleted->left;
+						free(deleted);
+						return 0;
+					}
+
+					//그 이외의 node가 제거대상일 때
+					if(key<parent->key)
+					{
+						ptr_parent->left=ptr->right;
+						parent->left=ptr;
+						ptr->right=deleted->right;
+						ptr->left=deleted->left;
+					}
+					else if(key>parent->key)
+					{
+						ptr_parent->left=ptr->right;
+						parent->right=ptr;
+						ptr->right=deleted->right;
+						ptr->left=deleted->left;
+					}
 					free(deleted);
 					return 0;
+
 				}
 			}
 
 			/* non-leaf node which has one child delete */
 			else
-			{			
-				if(key>parent->key){
-					if(deleted->left!=NULL)
-						parent->right=deleted->left;
-				
-					else if(deleted->right!=NULL)
-						parent->right=deleted->right;
-				}
-				else{
+			{
+				/* head->left가 one child를 갖는 노드일 때*/
+				if(head->left==deleted)
+				{
 					if(deleted->left!=NULL)
 						parent->left=deleted->left;
-				
 					else if(deleted->right!=NULL)
-						parent->left=deleted->right;					
+						parent->left=deleted->right;
+					free(deleted);
+					return 0;
+				}
+
+				//deleted의 subtree는 left or right 중 어디에 위치하는지 알아야 함
+				if(key<parent->key)
+				{
+					if(deleted->left!=NULL)
+						parent->left=deleted->left;
+					else if(deleted->right!=NULL)
+						parent->left=deleted->right;
+				}	
+				else if(key>parent->key)
+				{
+					if(deleted->left!=NULL)
+						parent->right=deleted->left;
+					else if(deleted->right!=NULL)
+						parent->right=deleted->right;
 				}
 				free(deleted);
 				return 0;
@@ -310,7 +361,7 @@ void freeNode(Node* ptr)
 int freeBST(Node* head)
 {
 	//tree가 존재하지 않을 때 -> head만 메모리 해제시키면 됨
-	if(head->left == head)		
+	if(head->left == head)		//////Q. head->left==NULL이라고 해도 돼????? 
 	{
 		free(head);
 		return 1;
